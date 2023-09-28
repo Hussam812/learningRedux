@@ -1,8 +1,20 @@
 console.log(Redux);
+console.log(ReduxThunk);
 
 const withdraw = (amount) => ({ type: "WITHDRAW_MONEY", payload: amount });
 const diposite = (amount) => ({ type: "DEPOST_MONEY", payload: amount });
 const addProduct = (payload) => ({ type: "AddProduct", payload });
+
+const getProducts = (payload) => ({ type: "GET_PRODUCT", payload });
+
+const fetchProduct = () => {
+  return async (dispatch) => {
+    const res = await fetch("https://fakestoreapi.com/products");
+    const data = await res.json();
+    //console.log(data);
+    dispatch(getProducts(data));
+  };
+};
 const bankReducer = (state = 1000, action) => {
   switch (action.type) {
     case "WITHDRAW_MONEY":
@@ -13,10 +25,13 @@ const bankReducer = (state = 1000, action) => {
       return state;
   }
 };
+
 const productReducer = (state = [], action) => {
   switch (action.type) {
     case "AddProduct":
       return [...state, action.payload];
+    case "GET_PRODUCT":
+      return [...action.payload];
     default:
       return state;
   }
@@ -28,7 +43,7 @@ const appReducer = Redux.combineReducers({
   product: productReducer,
 });
 
-const store = Redux.createStore(appReducer);
+const store = Redux.createStore(appReducer, Redux.applyMiddleware(ReduxThunk));
 //console.log(store.getState().bank);
 const depbtn = document.getElementById("deposite");
 depbtn.addEventListener("click", () => {
